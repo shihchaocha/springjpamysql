@@ -1,0 +1,41 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8
+    ports:
+      - "8306:3306"
+    container_name: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=passwd
+      - MYSQL_DATABASE=springjpamysql
+    volumes:
+      - mysqlvolnew:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+        test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+        timeout: 20s
+        retries: 10
+  myapp:
+    image: jpamysql
+    container_name: jpamysql
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/springjpamysql
+      - SPRING_DATASOURCE_PASSWORD=passwd
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  mysqlvolnew:
+
+networks:
+  backend:
+    driver: bridge
+
+
+
